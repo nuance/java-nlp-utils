@@ -2,6 +2,7 @@ package org.mhjones.nlp.util;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import org.mhjones.nlp.math.DoubleArrays;
@@ -12,6 +13,27 @@ public class Counter<E> implements Serializable {
     double[] values;
 
     protected int encode(E key) {
+	if (!entriesEncoder.containsKey(key)) {
+	    int enc_key = entriesEncoder.size();
+	    entriesEncoder.put(key, enc_key);
+
+	    if (values.length == enc_key) {
+		// resize values and entriesDecoder
+		double[] newValues = new double[values.length*2];
+		E[] newEntriesDecoder = (E[]) new Object[entriesDecoder.length*2];
+
+		for (int i = 0; i < values.length; i++) {
+		    newValues[i] = values[i];
+		    newEntriesDecoder[i] = entriesDecoder[i];
+		}
+
+		values = newValues;
+		entriesDecoder = newEntriesDecoder;
+	    }
+
+	    entriesDecoder[enc_key] = key;
+	}
+
 	return entriesEncoder.get(key);
     }
 
@@ -32,15 +54,11 @@ public class Counter<E> implements Serializable {
     }
     
     public double getCount(E key) {
-	if (encode(key) > values.length)
-	    // FIXME: this will break with smoothing
-	    return 0.0;
 	return values[encode(key)];
     }
     
     public void incrementCount(E key, double val) {
-	int enc_key = encode(key);
-	values[enc_key] += val;
+	values[encode(key)] += val;
     }
 
     public void normalize() {
@@ -64,4 +82,17 @@ public class Counter<E> implements Serializable {
 	ret += "]";
 	return ret;
     }
+
+    public Counter(int keySetSize) {
+	entriesEncoder = new HashMap<E, Integer>();
+	entriesDecoder = (E[]) new Object[keySetSize];
+	values = DoubleArrays.constantArray(keySetSize, 0.0);
+    }
+
+    public Counter() {
+	entriesEncoder = new HashMap<E, Integer>();
+	entriesDecoder = (E[]) new Object[128];
+	values = DoubleArrays.constantArray(128, 0.0);
+    }
+
 }

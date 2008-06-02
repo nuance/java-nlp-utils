@@ -28,4 +28,13 @@ public class DoubleArrays {
 
 	return arg;
     }
+
+    public static double[] constantArray(int length, double defaultValue) {
+	double[] ret = new double[length];
+	
+	for (int i = 0; i < length; i++) ret[i] = defaultValue;
+
+	return ret;
+    }
+
 }
