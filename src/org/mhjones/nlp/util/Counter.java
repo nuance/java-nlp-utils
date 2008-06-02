@@ -18,10 +18,10 @@ public class Counter<E> implements Serializable {
 
     protected int encode(E key) {
 	if (!entriesEncoder.containsKey(key)) {
-	    int enc_key = entriesEncoder.size();
-	    entriesEncoder.put(key, enc_key);
+	    int encKey = entriesEncoder.size();
+	    entriesEncoder.put(key, encKey);
 
-	    if (values.length == enc_key) {
+	    if (values.length == encKey) {
 		// resize values and entriesDecoder
 		double[] newValues = DoubleArrays.constantArray(values.length*2, defaultValue);
 		E[] newEntriesDecoder = (E[]) new Object[entriesDecoder.length*2];
@@ -35,14 +35,14 @@ public class Counter<E> implements Serializable {
 		entriesDecoder = newEntriesDecoder;
 	    }
 
-	    entriesDecoder[enc_key] = key;
+	    entriesDecoder[encKey] = key;
 	}
 
 	return entriesEncoder.get(key);
     }
 
-    protected E decode(int enc_key) {
-	return entriesDecoder[enc_key];
+    protected E decode(int encKey) {
+	return entriesDecoder[encKey];
     }
 
     public Set<E> keySet() {
