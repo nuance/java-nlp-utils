@@ -19,7 +19,7 @@ public class Counter<E> implements Serializable {
 
 	    if (values.length == enc_key) {
 		// resize values and entriesDecoder
-		double[] newValues = new double[values.length*2];
+		double[] newValues = DoubleArrays.constantArray(values.length*2, 0.0);
 		E[] newEntriesDecoder = (E[]) new Object[entriesDecoder.length*2];
 
 		for (int i = 0; i < values.length; i++) {
