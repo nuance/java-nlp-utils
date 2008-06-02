@@ -1,0 +1,8 @@
+- Start with math & util
+  - Counter types
+  - SharedIndex for Counters (encoding)
+  - DoubleArrays code
+  - CounterMath (extends DoubleArrays)
+- Try out Klein's 08 ACL paper on monolingual alignment, see what's necessary
+- Future Work
+  - LBFGS Minimizer
