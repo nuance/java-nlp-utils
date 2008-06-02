@@ -10,9 +10,19 @@ public class DoubleArrays {
 	return sum;
     }
 
+    public static void inPlaceAdd(double[] x, double y) {
+	for (int i = 0; i < x.length; i++)
+	    x[i] += y;
+    }
+
     public static void inPlaceDivide(double[] x, double y) {
 	for (int i = 0; i < x.length; i++)
 	    x[i] /= y;
+    }
+
+    public static void inPlaceLog(double[] x) {
+	for (int i = 0; i < x.length; i++)
+	    x[i] = Math.log(x[i]);
     }
 
     public static int argMax(double[] x) {

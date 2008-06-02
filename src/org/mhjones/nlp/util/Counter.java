@@ -5,12 +5,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
+
 import org.mhjones.nlp.math.DoubleArrays;
 
 public class Counter<E> implements Serializable {
     Map<E, Integer> entriesEncoder;
     E[] entriesDecoder;
     double[] values;
+
+    boolean logCounter;
+    double defaultValue;
 
     protected int encode(E key) {
 	if (!entriesEncoder.containsKey(key)) {
@@ -19,7 +23,7 @@ public class Counter<E> implements Serializable {
 
 	    if (values.length == enc_key) {
 		// resize values and entriesDecoder
-		double[] newValues = DoubleArrays.constantArray(values.length*2, 0.0);
+		double[] newValues = DoubleArrays.constantArray(values.length*2, defaultValue);
 		E[] newEntriesDecoder = (E[]) new Object[entriesDecoder.length*2];
 
 		for (int i = 0; i < values.length; i++) {
@@ -61,9 +65,15 @@ public class Counter<E> implements Serializable {
 	values[encode(key)] += val;
     }
 
+    // This is really transforming a set of counts into a distribution of counts,
+    // so perhaps this should at least lock the values or somehow signify that it's not for counting anymore?
     public void normalize() {
-	double total = DoubleArrays.sum(values);
-	DoubleArrays.inPlaceDivide(values, total);
+	double total = totalCount();
+	if (logCounter) {
+	    DoubleArrays.inPlaceLog(values);
+	    DoubleArrays.inPlaceAdd(values, -Math.log(total));
+	}
+	else DoubleArrays.inPlaceDivide(values, total);
     }
 
     E argMax() {
@@ -84,15 +94,40 @@ public class Counter<E> implements Serializable {
     }
 
     public Counter(int keySetSize) {
+	this.logCounter = false;
+	this.defaultValue = 0.0;
+
 	entriesEncoder = new HashMap<E, Integer>();
 	entriesDecoder = (E[]) new Object[keySetSize];
-	values = DoubleArrays.constantArray(keySetSize, 0.0);
+	values = DoubleArrays.constantArray(keySetSize, defaultValue);
     }
 
     public Counter() {
+	this.logCounter = false;
+	this.defaultValue = 0.0;
+
 	entriesEncoder = new HashMap<E, Integer>();
 	entriesDecoder = (E[]) new Object[128];
-	values = DoubleArrays.constantArray(128, 0.0);
+	values = DoubleArrays.constantArray(128, defaultValue);
     }
 
+    public Counter(int keySetSize, boolean logCounter) {
+	this.logCounter = logCounter;
+	if (logCounter) this.defaultValue = Double.NEGATIVE_INFINITY;
+	else this.defaultValue = 0.0;
+
+	entriesEncoder = new HashMap<E, Integer>();
+	entriesDecoder = (E[]) new Object[keySetSize];
+	values = DoubleArrays.constantArray(keySetSize, defaultValue);
+    }
+
+    public Counter(boolean logCounter) {
+	this.logCounter = logCounter;
+	if (logCounter) this.defaultValue = Double.NEGATIVE_INFINITY;
+	else this.defaultValue = 0.0;
+
+	entriesEncoder = new HashMap<E, Integer>();
+	entriesDecoder = (E[]) new Object[128];
+	values = DoubleArrays.constantArray(128, defaultValue);
+    }
 }
