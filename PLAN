@@ -1,5 +1,6 @@
 - Start with math & util
   - Counter types
+  - Switch for log / normal counter  
   - SharedIndex for Counters (encoding)
   - DoubleArrays code
   - CounterMath (extends DoubleArrays)
