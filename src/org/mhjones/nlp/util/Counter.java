@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-
 import org.mhjones.nlp.math.DoubleArrays;
 
 public class Counter<E> implements Serializable {
@@ -18,15 +17,9 @@ public class Counter<E> implements Serializable {
     protected int encode(E key) {
 	int eKey = encoding.encode(key);
 
-	if (eKey >= values.length) {
-		// resize values
-		double[] newValues = DoubleArrays.constantArray(values.length*2, defaultValue);
-
-		for (int i = 0; i < values.length; i++)
-		    newValues[i] = values[i];
-
-		values = newValues;
-	}
+	// resize values
+	if (eKey >= values.length)
+	    values = DoubleArrays.resizeArray(values, values.length*2, defaultValue);
 
 	return eKey;
     }
