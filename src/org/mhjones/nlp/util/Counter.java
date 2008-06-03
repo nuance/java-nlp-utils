@@ -9,48 +9,38 @@ import java.util.Set;
 import org.mhjones.nlp.math.DoubleArrays;
 
 public class Counter<E> implements Serializable {
-    Map<E, Integer> entriesEncoder;
-    E[] entriesDecoder;
+    Encoding<E> encoding;
     double[] values;
 
     boolean logCounter;
     double defaultValue;
 
     protected int encode(E key) {
-	if (!entriesEncoder.containsKey(key)) {
-	    int encKey = entriesEncoder.size();
-	    entriesEncoder.put(key, encKey);
+	int eKey = encoding.encode(key);
 
-	    if (values.length == encKey) {
-		// resize values and entriesDecoder
+	if (eKey >= values.length) {
+		// resize values
 		double[] newValues = DoubleArrays.constantArray(values.length*2, defaultValue);
-		E[] newEntriesDecoder = (E[]) new Object[entriesDecoder.length*2];
 
-		for (int i = 0; i < values.length; i++) {
+		for (int i = 0; i < values.length; i++)
 		    newValues[i] = values[i];
-		    newEntriesDecoder[i] = entriesDecoder[i];
-		}
 
 		values = newValues;
-		entriesDecoder = newEntriesDecoder;
-	    }
-
-	    entriesDecoder[encKey] = key;
 	}
 
-	return entriesEncoder.get(key);
+	return eKey;
     }
 
-    protected E decode(int encKey) {
-	return entriesDecoder[encKey];
+    protected E decode(int eKey) {
+	return encoding.decode(eKey);
     }
 
     public Set<E> keySet() {
-	return entriesEncoder.keySet();
+	return encoding.keySet();
     }
 
     public int size() {
-	return entriesEncoder.size();
+	return encoding.size();
     }
 
     public boolean isEmpty() {
@@ -93,41 +83,28 @@ public class Counter<E> implements Serializable {
 	return ret;
     }
 
-    public Counter(int keySetSize) {
-	this.logCounter = false;
-	this.defaultValue = 0.0;
+    public Counter(int keySetSize, boolean logCounter, Encoding<E> encoding) {
+	this.logCounter = logCounter;
+	if (logCounter) this.defaultValue = Double.NEGATIVE_INFINITY;
+	else this.defaultValue = 0.0;
 
-	entriesEncoder = new HashMap<E, Integer>();
-	entriesDecoder = (E[]) new Object[keySetSize];
+	this.encoding = encoding;
 	values = DoubleArrays.constantArray(keySetSize, defaultValue);
-    }
-
-    public Counter() {
-	this.logCounter = false;
-	this.defaultValue = 0.0;
-
-	entriesEncoder = new HashMap<E, Integer>();
-	entriesDecoder = (E[]) new Object[128];
-	values = DoubleArrays.constantArray(128, defaultValue);
     }
 
     public Counter(int keySetSize, boolean logCounter) {
-	this.logCounter = logCounter;
-	if (logCounter) this.defaultValue = Double.NEGATIVE_INFINITY;
-	else this.defaultValue = 0.0;
+	this(keySetSize, logCounter, new Encoding<E>(keySetSize));
+    }
 
-	entriesEncoder = new HashMap<E, Integer>();
-	entriesDecoder = (E[]) new Object[keySetSize];
-	values = DoubleArrays.constantArray(keySetSize, defaultValue);
+    public Counter(int keySetSize) {
+	this(keySetSize, false);
     }
 
     public Counter(boolean logCounter) {
-	this.logCounter = logCounter;
-	if (logCounter) this.defaultValue = Double.NEGATIVE_INFINITY;
-	else this.defaultValue = 0.0;
+	this(128, logCounter);
+    }
 
-	entriesEncoder = new HashMap<E, Integer>();
-	entriesDecoder = (E[]) new Object[128];
-	values = DoubleArrays.constantArray(128, defaultValue);
+    public Counter() {
+	this(128, false);
     }
 }

@@ -1,7 +1,7 @@
 - Start with math & util
-  - Counter types
-  - Switch for log / normal counter  
-  - SharedIndex for Counters (encoding)
+  + Counter types
+  + Switch for log / normal counter  
+  + SharedIndex for Counters (encoding / interner)
   - DoubleArrays code
   - CounterMath (extends DoubleArrays)
 - Try out Klein's 08 ACL paper on monolingual alignment, see what's necessary
