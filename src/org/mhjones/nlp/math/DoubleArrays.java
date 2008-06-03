@@ -38,7 +38,6 @@ public class DoubleArrays {
 
 	return arg;
     }
-
     
     public static double[] resizeArray(double[] array, int newLength) {
 	double[] newArray = new double[newLength];
@@ -48,7 +47,6 @@ public class DoubleArrays {
 	    
 	return newArray;
     }
-
 
     public static double[] constantArray(int length, double defaultValue) {
 	double[] ret = new double[length];
