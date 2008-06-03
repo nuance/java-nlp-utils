@@ -2,8 +2,15 @@
   + Counter types
   + Switch for log / normal counter  
   + SharedIndex for Counters (encoding / interner)
+  - Raw access
   - DoubleArrays code
   - CounterMath (extends DoubleArrays)
+  - Documentation
+- Some basic models
+  - Naive bayes	(word classification)
+  - HMM (Tagging)
+-- 0.1 release --
+- Documentation
 - Try out Klein's 08 ACL paper on monolingual alignment, see what's necessary
 - Future Work
   - LBFGS Minimizer
