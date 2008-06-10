@@ -41,13 +41,13 @@ public class NaiveBayesClassifier {
     }
 
     public String label(String datum) {
-	double[] labelDistribution = new double[featureDistribution.encoder.size()];
+	double[] labelDistribution = new double[featureDistribution.primaryEncoding.size()];
 
 	for (FeatureExtractor<String> extractor: featureExtractors)
 	    for (int feature : extractor.extractFeatures(datum))
 		DoubleArrays.inPlaceAdd(labelDistribution, featureDistribution.getCounter(feature).values);
 
-	return featureDistribution.encoder.decode(DoubleArrays.argMax(labelDistribution));
+	return featureDistribution.secondaryEncoding.decode(DoubleArrays.argMax(labelDistribution));
     }
 
     public Map<String, String> label(Set<String> data) {
@@ -64,7 +64,7 @@ public class NaiveBayesClassifier {
     }
 
     public NaiveBayesClassifier() {
-	featureDistribution = new CounterMap<String, String>(true);
+	featureDistribution = new CounterMap<Integer, String>();
 
 	featureEncoder = new Encoding<String>();
 

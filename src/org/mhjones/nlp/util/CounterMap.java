@@ -4,31 +4,31 @@ import java.io.Serializable;
 
 import org.mhjones.nlp.math.DoubleArrays;
 import org.mhjones.nlp.math.IntegerArrays;
-import org.mhjones.nlp.math.Double2DArrays;
-import org.mhjones.nlp.math.Integer2DArrays;
+import org.mhjones.nlp.math.DoubleArrays2D;
+import org.mhjones.nlp.math.IntegerArrays2D;
 
 import java.util.Set;
 
 public class CounterMap<E,F> implements Serializable {
-    Encoding<E> primaryEncoding;
-    Encoding<F> secondaryEncoding;
+    public Encoding<E> primaryEncoding;
+    public Encoding<F> secondaryEncoding;
 
-    double[][] values;
+    public double[][] values;
 
-    int[][] secondaryIdx;    // Contains the encoded secondary for each location (tells you what is in position 1)
-    int[][] secondaryRevIdx; // Contains the location of the specified encoded secondary (tells you where item 1 is)
-    int[] used;              // The next position to add items to
+    public int[][] secondaryIdx;    // Contains the encoded secondary for each location (tells you what is in position 1)
+    public int[][] secondaryRevIdx; // Contains the location of the specified encoded secondary (tells you where item 1 is)
+    public int[] used;              // The next position to add items to
 
-    final int NOT_PRESENT = -1;
+    public final int NOT_PRESENT = -1;
 
     protected int encodePrimary(E key) {
 	int eKey = primaryEncoding.encode(key);
 
 	// resize values
 	if (eKey >= values.length) {
-	    values = Double2DArrays.resizeArray(values, values.length*2);
-	    secondaryIdx = Integer2DArrays.resizeArray(secondaryIdx, secondaryIdx.length*2);
-	    secondaryRevIdx = Integer2DArrays.resizeArray(secondaryRevIdx, secondaryRevIdx.length*2);
+	    values = DoubleArrays2D.resizeArray(values, values.length*2, 1, 0.0);
+	    secondaryIdx = IntegerArrays2D.resizeArray(secondaryIdx, secondaryIdx.length*2, 1, 1);
+	    secondaryRevIdx = IntegerArrays2D.resizeArray(secondaryRevIdx, secondaryRevIdx.length*2, 1, 1);
 	    used = IntegerArrays.resizeArray(used, used.length*2);
 	}
 
@@ -96,7 +96,7 @@ public class CounterMap<E,F> implements Serializable {
 	    // Do we need to resize the sparse array?
 	    if (used[ePrimary] == values[ePrimary].length) {
 		// Resize sparse array & indexes
-		values[ePrimary] = Double2DArrays.resizeArray(values[ePrimary], values[ePrimary].length*2);
+		values[ePrimary] = DoubleArrays.resizeArray(values[ePrimary], values[ePrimary].length*2);
 		secondaryIdx[ePrimary] = IntegerArrays.resizeArray(secondaryIdx[ePrimary], secondaryIdx[ePrimary].length*2);
 		secondaryRevIdx[ePrimary] = IntegerArrays.resizeArray(secondaryRevIdx[ePrimary], secondaryRevIdx[ePrimary].length*2);
 	    }
@@ -159,7 +159,7 @@ public class CounterMap<E,F> implements Serializable {
     }
 
     public CounterMap(Encoding<E> primaryEncoding, Encoding<F> secondaryEncoding) {
-	this(primaryEncoding.size(), secondaryEncoding.size(), IntegerArrays.constantArray(primaryEncoding.size(), secondaryEncoding.size()), primaryEncoding, secondaryEncoding);
+	this(primaryEncoding.size(), IntegerArrays.constantArray(primaryEncoding.size(), secondaryEncoding.size()), primaryEncoding, secondaryEncoding);
     }
 
     public CounterMap() {
