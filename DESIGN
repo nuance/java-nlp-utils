@@ -7,6 +7,8 @@ Differences from Klein NLP framework
     - Encoding for same types should share int values (counter1.encode("raw") == counter2.encode("raw"))
       (e.g. a.equals(b) <=> encode(a) == encode(b) -> use the interner)
     - Works for log distributions as well as non-log
+      - This needs some re-thinking => how is it exposed, what does it affect beyond normalization
+      - Should probably be in CounterMath rather than here (CounterMath.logDistribution(Counter) etc.)
 - math/
   - CounterMath
     - Operates on raw backing for counters

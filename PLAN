@@ -2,8 +2,11 @@
   + Counter types
   + Switch for log / normal counter  
   + SharedIndex for Counters (encoding / interner)
-  - Raw access
+  + Raw access
+  - CounterMap
+    - Sparse and Dense (default is Dense)
   - DoubleArrays code
+    - Also IntegerArrays, Double2DArrays, ...
   - CounterMath (extends DoubleArrays)
   - Documentation
 - Some basic models

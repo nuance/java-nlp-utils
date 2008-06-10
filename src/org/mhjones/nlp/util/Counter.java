@@ -8,8 +8,8 @@ import java.util.Set;
 import org.mhjones.nlp.math.DoubleArrays;
 
 public class Counter<E> implements Serializable {
-    Encoding<E> encoding;
-    double[] values;
+    public Encoding<E> encoding;
+    public double[] values;
 
     boolean logCounter;
     double defaultValue;
@@ -19,7 +19,7 @@ public class Counter<E> implements Serializable {
 
 	// resize values
 	if (eKey >= values.length)
-	    values = DoubleArrays.resizeArray(values, values.length*2, defaultValue);
+	    values = DoubleArrays.resizeArray(values, values.length*2);
 
 	return eKey;
     }
@@ -44,6 +44,10 @@ public class Counter<E> implements Serializable {
 	return values[encode(key)];
     }
     
+    public void incrementCount(E key) {
+	values[encode(key)] += 1.0;
+    }
+
     public void incrementCount(E key, double val) {
 	values[encode(key)] += val;
     }
@@ -53,18 +57,18 @@ public class Counter<E> implements Serializable {
     public void normalize() {
 	double total = totalCount();
 	if (logCounter) {
-	    DoubleArrays.inPlaceLog(values);
-	    DoubleArrays.inPlaceAdd(values, -Math.log(total));
+	    DoubleArrays.inPlaceLog(values, 0, encoding.size());
+	    DoubleArrays.inPlaceAdd(values, -Math.log(total), 0, encoding.size());
 	}
-	else DoubleArrays.inPlaceDivide(values, total);
+	else DoubleArrays.inPlaceDivide(values, total, 0, encoding.size());
     }
 
     E argMax() {
-	return decode(DoubleArrays.argMax(values));
+	return decode(DoubleArrays.argMax(values, 0, encoding.size()));
     }
 
     double totalCount() {
-	return DoubleArrays.sum(values);
+	return DoubleArrays.sum(values, 0, encoding.size());
     }
 
     public String toString() {
@@ -74,6 +78,14 @@ public class Counter<E> implements Serializable {
       
 	ret += "]";
 	return ret;
+    }
+
+    public Counter(double[] values, int[] index, int used, Encoding<E> encoding) {
+	this.values = DoubleArrays.constantArray(encoding.size(), 0.0);
+	this.encoding = encoding;
+
+	for (int i = 0; i < used; i++)
+	    this.values[index[i]] = values[i];
     }
 
     public Counter(int keySetSize, boolean logCounter, Encoding<E> encoding) {
