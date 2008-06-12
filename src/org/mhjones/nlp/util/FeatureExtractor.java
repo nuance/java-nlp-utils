@@ -1,5 +1,5 @@
 package org.mhjones.nlp.util;
 
-public interface FeatureExtractor<E> {
-    public int[] extractFeatures(E datum);
+public interface FeatureExtractor {
+    public int[] extractFeatures(String datum);
 }

@@ -1,5 +1,8 @@
 package org.mhjones.nlp.examples;
 
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -11,10 +14,10 @@ import org.mhjones.nlp.util.FeatureExtractor;
 
 public class NaiveBayesClassifier {
 
-    protected class IdentityExtractor<E> implements FeatureExtractor<E> {
+    protected class IdentityExtractor implements FeatureExtractor {
 	Encoding<String> encoder;
 
-	public int[] extractFeatures(E datum) {
+	public int[] extractFeatures(String datum) {
 	    int[] features = new int[1];
 
 	    features[0] = encoder.encode("IDENTITY-" + datum);
@@ -28,12 +31,12 @@ public class NaiveBayesClassifier {
     }
 
     CounterMap<Integer, String> featureDistribution;
-    FeatureExtractor<String>[] featureExtractors;
+    FeatureExtractor[] featureExtractors;
     Encoding<String> featureEncoder;
 
     public void train(Map<String, String> labeledData) {
 	for (String datum : labeledData.keySet())
-	    for (FeatureExtractor<String> extractor: featureExtractors)
+	    for (FeatureExtractor extractor: featureExtractors)
 		for (int feature : extractor.extractFeatures(datum))
 		    featureDistribution.incrementCount(feature, labeledData.get(datum));
 
@@ -43,7 +46,7 @@ public class NaiveBayesClassifier {
     public String label(String datum) {
 	double[] labelDistribution = new double[featureDistribution.primaryEncoding.size()];
 
-	for (FeatureExtractor<String> extractor: featureExtractors)
+	for (FeatureExtractor extractor: featureExtractors)
 	    for (int feature : extractor.extractFeatures(datum))
 		DoubleArrays.inPlaceAdd(labelDistribution, featureDistribution.getCounter(feature).values);
 
@@ -68,18 +71,37 @@ public class NaiveBayesClassifier {
 
 	featureEncoder = new Encoding<String>();
 
-	featureExtractors = (FeatureExtractor<String>[]) new Object[1];
-	featureExtractors[0] = new IdentityExtractor<String>(featureEncoder);
+	featureExtractors = new FeatureExtractor[1];
+	featureExtractors[0] = new IdentityExtractor(featureEncoder);
     }
 
-    public static void main() {
+    public static Map<String, String> readDelimitedData(String filename, String delimiter) throws IOException {
+	FileReader fr = new FileReader(filename);
+	BufferedReader br = new BufferedReader(fr);
+	Map<String, String> pairs = new HashMap<String, String>();
+
+	while (br.ready()) {
+	    String line = br.readLine();
+	    String[] split = line.split(delimiter);
+	    
+	    pairs.put(split[1], split[0]);
+	}
+
+	br.close();
+	fr.close();
+
+	return pairs;
+    }
+
+    public static void main(String[] args) throws IOException {
 	System.out.println("*** Naive Bayes Classifier ***");
 
 	boolean verbose = true;
-
 	NaiveBayesClassifier classifier = new NaiveBayesClassifier();
-	Map<String, String> labeledTrainingData = new HashMap<String, String>();
-	Map<String, String> labeledTestData = new HashMap<String, String>();
+
+	/** Read in training and test data **/
+	Map<String, String> labeledTrainingData = readDelimitedData("data/pnp-train.txt", "\t");
+	Map<String, String> labeledTestData = readDelimitedData("data/pnp-test.txt", "\t");
 
 	classifier.train(labeledTrainingData);
 

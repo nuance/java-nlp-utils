@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./build
+
+java -server -ea -cp classes org.mhjones.nlp.examples.NaiveBayesClassifier

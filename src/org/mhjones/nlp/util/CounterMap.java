@@ -138,6 +138,9 @@ public class CounterMap<E,F> implements Serializable {
 
     public CounterMap(int primaryKeySetSize, int[] secondaryDistribution, Encoding<E> primaryEncoding, Encoding<F> secondaryEncoding) {
 	values = new double[primaryKeySetSize][];
+	secondaryIdx = new int[primaryKeySetSize][];
+	secondaryRevIdx = new int[primaryKeySetSize][];
+
 	used = new int[primaryKeySetSize];
 
 	for (int i = 0; i < primaryKeySetSize; i++) {

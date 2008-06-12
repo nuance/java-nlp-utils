@@ -21,7 +21,7 @@ public class Encoding<E> implements Serializable {
 	if (decoder.length == eKey) {
 	    E[] newDecoder = (E[]) new Object[decoder.length*2];
 
-	    for (int i = 0; i < newDecoder.length; i++)
+	    for (int i = 0; i < decoder.length; i++)
 		newDecoder[i] = decoder[i];
 
 	    decoder = newDecoder;
