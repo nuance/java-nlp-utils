@@ -5,6 +5,8 @@
   + Raw access
   - CounterMap
     - Sparse and Dense (default is Dense)
+    - Sparse needs to switch to HashMap<Int,Int> for reverse index
+      - Is there any reason to use array? - Use case is better with Dense, or can be handled by Dense directly
   - DoubleArrays code
     - Also IntegerArrays, Double2DArrays, ...
   - CounterMath (extends DoubleArrays)
