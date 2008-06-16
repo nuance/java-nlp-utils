@@ -47,8 +47,10 @@ public class NaiveBayesClassifier {
 	double[] labelDistribution = new double[featureDistribution.primaryEncoding.size()];
 
 	for (FeatureExtractor extractor: featureExtractors)
-	    for (int feature : extractor.extractFeatures(datum))
-		DoubleArrays.inPlaceAdd(labelDistribution, featureDistribution.getCounter(feature).values);
+	    for (int feature : extractor.extractFeatures(datum)) {
+		double[] featureDist = featureDistribution.getCounter(feature).values;
+		DoubleArrays.inPlaceAdd(labelDistribution, featureDist, 0, featureDist.length);
+	    }
 
 	return featureDistribution.secondaryEncoding.decode(DoubleArrays.argMax(labelDistribution));
     }

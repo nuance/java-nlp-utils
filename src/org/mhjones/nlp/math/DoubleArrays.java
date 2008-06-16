@@ -39,7 +39,7 @@ public class DoubleArrays {
     }
 
     public static void inPlaceAdd(double[] x, double[] y, int start, int length) {
-	if (x.length != y.length) throw new IllegalArgumentException();
+	if (x.length < length || y.length < length) throw new IllegalArgumentException();
 	
 	for (int i = start; i < length+start; i++)
 	    x[i] += y[i];
