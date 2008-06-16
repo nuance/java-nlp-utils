@@ -13,7 +13,8 @@ public class Encoding<E> implements Serializable {
 
     public int encode(E key) {
 	E cKey = interner.intern(key);
-	if (encoder.containsKey(cKey)) return encoder.get(cKey);
+	if (encoder.containsKey(cKey))
+	    return encoder.get(cKey);
 
 	int eKey = encoder.size();
 	encoder.put(cKey, eKey);

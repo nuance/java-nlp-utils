@@ -69,6 +69,13 @@ public class CounterMap<E,F> implements Serializable {
 
     public Counter<F> getCounter(E primary) {
 	int ePrimary = encodePrimary(primary);
+	
+	if (DoubleArrays.sum(values[ePrimary]) == 0) {
+	    Counter<F> counter = new Counter(secondaryEncoding);
+	    counter.normalize();
+	    return counter;
+	}
+
 	return new Counter<F>(values[ePrimary], secondaryIdx[ePrimary], secondaryRevIdx[ePrimary].size(), secondaryEncoding);
     }
 

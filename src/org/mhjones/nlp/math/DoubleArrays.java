@@ -39,10 +39,17 @@ public class DoubleArrays {
     }
 
     public static void inPlaceAdd(double[] x, double[] y, int start, int length) {
-	if (x.length < length || y.length < length) throw new IllegalArgumentException();
+	if (x.length < length+start || y.length < length+start) throw new IllegalArgumentException();
 	
 	for (int i = start; i < length+start; i++)
 	    x[i] += y[i];
+    }
+
+    public static void inPlaceMultiply(double[] x, double[] y, int start, int length) {
+	if (x.length < length+start || y.length < length+start) throw new IllegalArgumentException();
+	
+	for (int i = start; i < length+start; i++)
+	    x[i] *= y[i];
     }
 
     public static void inPlaceDivide(double[] x, double y) {

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.HashMap;
 
 import org.mhjones.nlp.math.DoubleArrays;
+import org.mhjones.nlp.util.Counter;
 import org.mhjones.nlp.util.CounterMap;
 import org.mhjones.nlp.util.Encoding;
 import org.mhjones.nlp.util.FeatureExtractor;
@@ -30,6 +31,43 @@ public class NaiveBayesClassifier {
 	}
     }
 
+    protected class CharacterExtractor implements FeatureExtractor {
+	Encoding<String> encoder;
+
+	public int[] extractFeatures(String datum) {
+	    int[] features = new int[datum.length()];
+
+	    for (int i = 0; i < datum.length(); i++)
+		features[i] = encoder.encode("CHAR-" + datum.charAt(i));
+
+	    return features;
+	}
+
+	public CharacterExtractor(Encoding<String> encoding) {
+	    this.encoder = encoding;
+	}
+    }
+
+    protected class BiCharacterExtractor implements FeatureExtractor {
+	Encoding<String> encoder;
+
+	public int[] extractFeatures(String datum) {
+	    int[] features = new int[datum.length()];
+	    char last = '_';
+
+	    for (int i = 0; i < datum.length(); i++) {
+		features[i] = encoder.encode("CHAR-" + last + datum.charAt(i));
+		last = datum.charAt(i);
+	    }
+
+	    return features;
+	}
+
+	public BiCharacterExtractor(Encoding<String> encoding) {
+	    this.encoder = encoding;
+	}
+    }
+
     CounterMap<Integer, String> featureDistribution;
     FeatureExtractor[] featureExtractors;
     Encoding<String> featureEncoder;
@@ -44,13 +82,20 @@ public class NaiveBayesClassifier {
     }
 
     public String label(String datum) {
-	double[] labelDistribution = new double[featureDistribution.primaryEncoding.size()];
+        double uniform = 1.0 / (double)featureDistribution.secondaryEncoding.size();
+	double[] labelDistribution = DoubleArrays.constantArray(featureDistribution.secondaryEncoding.size(), uniform);
 
 	for (FeatureExtractor extractor: featureExtractors)
 	    for (int feature : extractor.extractFeatures(datum)) {
-		double[] featureDist = featureDistribution.getCounter(feature).values;
-		DoubleArrays.inPlaceAdd(labelDistribution, featureDist, 0, featureDist.length);
+		Counter<String> features = featureDistribution.getCounter(feature);
+		//		System.out.println("Feature " + featureEncoder.decode(feature) + ": " + features);
+		DoubleArrays.inPlaceMultiply(labelDistribution, features.values, 0, features.encoding.size());
 	    }
+
+	//	System.out.print("Labelling " + datum + ": [");
+	//	for (int i = 0; i < labelDistribution.length; i++)
+	//	    System.out.print(" " + featureDistribution.secondaryEncoding.decode(i) + " : " + labelDistribution[i] + ",");
+	//	System.out.println("");
 
 	return featureDistribution.secondaryEncoding.decode(DoubleArrays.argMax(labelDistribution));
     }
@@ -73,8 +118,10 @@ public class NaiveBayesClassifier {
 
 	featureEncoder = new Encoding<String>();
 
-	featureExtractors = new FeatureExtractor[1];
-	featureExtractors[0] = new IdentityExtractor(featureEncoder);
+	featureExtractors = new FeatureExtractor[2];
+	//	featureExtractors[0] = new IdentityExtractor(featureEncoder);
+	featureExtractors[0] = new CharacterExtractor(featureEncoder);
+	featureExtractors[1] = new BiCharacterExtractor(featureEncoder);
     }
 
     public static Map<String, String> readDelimitedData(String filename, String delimiter) throws IOException {
@@ -98,7 +145,7 @@ public class NaiveBayesClassifier {
     public static void main(String[] args) throws IOException {
 	System.out.println("*** Naive Bayes Classifier ***");
 
-	boolean verbose = true;
+	boolean verbose = false;
 	NaiveBayesClassifier classifier = new NaiveBayesClassifier();
 
 	/** Read in training and test data **/

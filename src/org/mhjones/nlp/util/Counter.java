@@ -97,6 +97,10 @@ public class Counter<E> implements Serializable {
 	values = DoubleArrays.constantArray(keySetSize, defaultValue);
     }
 
+    public Counter(Encoding<E> encoding) {
+	this(encoding.size(), false, encoding);
+    }
+
     public Counter(int keySetSize, boolean logCounter) {
 	this(keySetSize, logCounter, new Encoding<E>(keySetSize));
     }
