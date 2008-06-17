@@ -16,3 +16,9 @@ Differences from Klein NLP framework
     - Smoothing / Normalization
   - DifferentiableFunction
     - Built in caching
+
+- Threading
+  - Threading done at DoubleArrays level
+  - All calls to DoubleArrays.* are async - placed in workqueue
+  - Array-wide operations cause implicit synchronicity
+  - Run until you need the result, then call DoubleArrays.sync() (this will return when all async processing done)
