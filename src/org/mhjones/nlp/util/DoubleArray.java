@@ -118,7 +118,7 @@ public class DoubleArray {
             resultIdx = start;
             result = array[start];
             
-            for (int i = start; i < start+length; i++) {
+            for (int i = start+1; i < start+length; i++) {
                 if (array[i] <= result) continue;
                 result = array[i];
                 resultIdx = i;
