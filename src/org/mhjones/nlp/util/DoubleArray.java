@@ -13,7 +13,7 @@ public class DoubleArray {
         public double result;
         public int resultIdx;
 
-        public void execute(double[] array, int start, int stop) {
+        public void execute(double[] array, int start, int length) {
             // Default is no-op
         }
 
@@ -25,7 +25,7 @@ public class DoubleArray {
 
     private class DoubleArrayWorker implements Runnable {
         double[] array;
-        int start, stop; // what part of the array to work in
+        int start, length; // what part of the array to work in
         public boolean finish;
         LinkedBlockingQueue<DoubleArrayFunction> queue;
         public double result;
@@ -39,7 +39,7 @@ public class DoubleArray {
                 try {
                     currentFunction = queue.take();
                 } catch (InterruptedException ignored) {}
-                currentFunction.execute(array, start, stop);
+                currentFunction.execute(array, start, length);
                 result = currentFunction.result;
                 resultIdx = currentFunction.resultIdx;
             }
@@ -49,10 +49,10 @@ public class DoubleArray {
             queue.add(function);
         }
         
-        public DoubleArrayWorker(double[] array, int start, int stop) {
+        public DoubleArrayWorker(double[] array, int start, int length) {
             this.array = array;
             this.start = start;
-            this.stop = stop;
+            this.length = length;
             queue = new LinkedBlockingQueue<DoubleArrayFunction>();
             finish = false;
         }
@@ -99,8 +99,8 @@ public class DoubleArray {
     // Synchronous methods
 
     private class Sum extends DoubleArrayFunction {
-        public void execute(double[] array, int start, int stop) {
-            result = DoubleArrays.sum(array, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            result = DoubleArrays.sum(array, start, length);
         }
         
         public Sum() {
@@ -114,11 +114,11 @@ public class DoubleArray {
     }
     
     private class ArgMax extends DoubleArrayFunction {
-        public void execute(double[] array, int start, int stop) {
+        public void execute(double[] array, int start, int length) {
             resultIdx = start;
             result = array[start];
             
-            for (int i = start++; i < stop; i++) {
+            for (int i = start; i < start+length; i++) {
                 if (array[i] <= result) continue;
                 result = array[i];
                 resultIdx = i;
@@ -158,8 +158,8 @@ public class DoubleArray {
     private class ArrayAdd extends DoubleArrayFunction {
         double[] other;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceAdd(array, other, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceAdd(array, other, start, length);
         }
         
         public ArrayAdd(double[] other) {
@@ -174,8 +174,8 @@ public class DoubleArray {
     private class Add extends DoubleArrayFunction {
         double constant;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceAdd(array, constant, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceAdd(array, constant, start, length);
         }
 
         public Add(double constant) {
@@ -190,8 +190,8 @@ public class DoubleArray {
     private class ArraySubtract extends DoubleArrayFunction {
         double[] other;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceSubtract(array, other, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceSubtract(array, other, start, length);
         }
         
         public ArraySubtract(double[] other) {
@@ -206,8 +206,8 @@ public class DoubleArray {
     private class ArrayMultiply extends DoubleArrayFunction {
         double[] other;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceMultiply(array, other, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceMultiply(array, other, start, length);
         }
         
         public ArrayMultiply(double[] other) {
@@ -222,8 +222,8 @@ public class DoubleArray {
     private class Multiply extends DoubleArrayFunction {
         double constant;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceMultiply(array, constant, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceMultiply(array, constant, start, length);
         }
 
         public Multiply(double constant) {
@@ -238,8 +238,8 @@ public class DoubleArray {
     private class Divide extends DoubleArrayFunction {
         double constant;
 
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceDivide(array, constant, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceDivide(array, constant, start, length);
         }
 
         public Divide(double constant) {
@@ -252,8 +252,8 @@ public class DoubleArray {
     }
     
     private class Log extends DoubleArrayFunction {
-        public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceLog(array, start, stop-start);
+        public void execute(double[] array, int start, int length) {
+            DoubleArrays.inPlaceLog(array, start, length);
         }
 
         public Log() {
@@ -274,10 +274,11 @@ public class DoubleArray {
         
         for (int i = 0; i < numThreads; i++) {
             int start = cut * i;
-            int stop = cut * (i+1);
-            if (i == numThreads) stop += overrun;
+            int workLength = cut;
+
+            if (i == numThreads-1) workLength += overrun;
             
-            workers[i] = new DoubleArrayWorker(array, start, stop);
+            workers[i] = new DoubleArrayWorker(array, start, workLength);
             workerThreads[i] = new Thread(workers[i]);
             workerThreads[i].start();
         }
