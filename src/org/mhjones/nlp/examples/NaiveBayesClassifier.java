@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.mhjones.nlp.math.DoubleArrays;
 import org.mhjones.nlp.util.Counter;
 import org.mhjones.nlp.util.CounterMap;
+import org.mhjones.nlp.util.DoubleArray;
 import org.mhjones.nlp.util.Encoding;
 import org.mhjones.nlp.util.FeatureExtractor;
 
@@ -83,13 +84,12 @@ public class NaiveBayesClassifier {
 
     public String label(String datum) {
         double uniform = 1.0 / (double)featureDistribution.secondaryEncoding.size();
-	double[] labelDistribution = DoubleArrays.constantArray(featureDistribution.secondaryEncoding.size(), uniform);
+        DoubleArray labelDistribution = new DoubleArray(featureDistribution.secondaryEncoding.size(), uniform, 1);
 
 	for (FeatureExtractor extractor: featureExtractors)
 	    for (int feature : extractor.extractFeatures(datum)) {
 		Counter<String> features = featureDistribution.getCounter(feature);
-		//		System.out.println("Feature " + featureEncoder.decode(feature) + ": " + features);
-		DoubleArrays.inPlaceMultiply(labelDistribution, features.values, 0, features.encoding.size());
+		labelDistribution.multiply(features.values);
 	    }
 
 	//	System.out.print("Labelling " + datum + ": [");
@@ -97,7 +97,7 @@ public class NaiveBayesClassifier {
 	//	    System.out.print(" " + featureDistribution.secondaryEncoding.decode(i) + " : " + labelDistribution[i] + ",");
 	//	System.out.println("");
 
-	return featureDistribution.secondaryEncoding.decode(DoubleArrays.argMax(labelDistribution));
+	return featureDistribution.secondaryEncoding.decode(labelDistribution.argMax());
     }
 
     public Map<String, String> label(Set<String> data) {
@@ -152,8 +152,10 @@ public class NaiveBayesClassifier {
 	Map<String, String> labeledTrainingData = readDelimitedData("data/pnp-train.txt", "\t");
 	Map<String, String> labeledTestData = readDelimitedData("data/pnp-test.txt", "\t");
 
+    System.out.println("Train");
 	classifier.train(labeledTrainingData);
 
+    System.out.println("Label");
 	Map<String, String> guessedLabels = classifier.label(labeledTestData.keySet());
 	
 	int correct = 0;
