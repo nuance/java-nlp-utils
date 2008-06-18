@@ -1,6 +1,8 @@
-package org.mhjones.nlp.math;
+package org.mhjones.nlp.util;
 
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.mhjones.nlp.math.DoubleArrays;
 
 public class DoubleArray {
     double[] array;
@@ -98,7 +100,7 @@ public class DoubleArray {
 
     private class Sum extends DoubleArrayFunction {
         public void execute(double[] array, int start, int stop) {
-            result = DoubleArrays.sum(array, start, stop);
+            result = DoubleArrays.sum(array, start, stop-start);
         }
         
         public Sum() {
@@ -157,7 +159,7 @@ public class DoubleArray {
         double[] other;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceAdd(array, other, start, stop);
+            DoubleArrays.inPlaceAdd(array, other, start, stop-start);
         }
         
         public ArrayAdd(double[] other) {
@@ -173,7 +175,7 @@ public class DoubleArray {
         double constant;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceAdd(array, constant, start, stop);
+            DoubleArrays.inPlaceAdd(array, constant, start, stop-start);
         }
 
         public Add(double constant) {
@@ -189,7 +191,7 @@ public class DoubleArray {
         double[] other;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceSubtract(array, other, start, stop);
+            DoubleArrays.inPlaceSubtract(array, other, start, stop-start);
         }
         
         public ArraySubtract(double[] other) {
@@ -205,7 +207,7 @@ public class DoubleArray {
         double[] other;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceMultiply(array, other, start, stop);
+            DoubleArrays.inPlaceMultiply(array, other, start, stop-start);
         }
         
         public ArrayMultiply(double[] other) {
@@ -221,7 +223,7 @@ public class DoubleArray {
         double constant;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceMultiply(array, constant, start, stop);
+            DoubleArrays.inPlaceMultiply(array, constant, start, stop-start);
         }
 
         public Multiply(double constant) {
@@ -237,7 +239,7 @@ public class DoubleArray {
         double constant;
 
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceDivide(array, constant, start, stop);
+            DoubleArrays.inPlaceDivide(array, constant, start, stop-start);
         }
 
         public Divide(double constant) {
@@ -251,7 +253,7 @@ public class DoubleArray {
     
     private class Log extends DoubleArrayFunction {
         public void execute(double[] array, int start, int stop) {
-            DoubleArrays.inPlaceLog(array, start, stop);
+            DoubleArrays.inPlaceLog(array, start, stop-start);
         }
 
         public Log() {
@@ -262,7 +264,7 @@ public class DoubleArray {
         dispatch(new Log());
     }
 
-    public DoubleArray(int length, int value, int numThreads) {
+    public DoubleArray(int length, double value, int numThreads) {
         array = DoubleArrays.constantArray(length, value);
         workers = new DoubleArrayWorker[numThreads];
         workerThreads = new Thread[numThreads];
@@ -277,7 +279,7 @@ public class DoubleArray {
             
             workers[i] = new DoubleArrayWorker(array, start, stop);
             workerThreads[i] = new Thread(workers[i]);
-            workerThreads[i].run();
+            workerThreads[i].start();
         }
     }
 }
