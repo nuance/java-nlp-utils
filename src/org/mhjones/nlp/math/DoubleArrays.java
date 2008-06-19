@@ -52,6 +52,13 @@ public class DoubleArrays {
 	    x[i] *= y[i];
     }
 
+    public static void inPlaceMultiply(double[] x, double y, int start, int length) {
+	if (x.length < length+start) throw new IllegalArgumentException();
+	
+	for (int i = start; i < length+start; i++)
+	    x[i] *= y;
+    }
+
     public static void inPlaceDivide(double[] x, double y) {
 	for (int i = 0; i < x.length; i++)
 	    x[i] /= y;
