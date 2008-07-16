@@ -72,6 +72,18 @@ public class DoubleArrays {
 	    x[i] = Math.log(x[i]);
     }
 
+    public static double max(double[] x) {
+	double val = x[0];
+
+	for (int i = 1; i < x.length; i++) {
+	    if (x[i] > val) {
+		val = x[i];
+	    }
+	}
+
+	return val;
+    }
+    
     public static int argMax(double[] x) {
 	int arg = 0;
 	double val = x[0];

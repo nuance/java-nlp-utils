@@ -2,4 +2,4 @@
 
 ./build
 
-java -server -ea -cp .classes org.mhjones.nlp.examples.NaiveBayesClassifier
+java -server -ea -cp .classes:jars/junit-4.0.jar org.mhjones.nlp.examples.NaiveBayesClassifier

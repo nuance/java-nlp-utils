@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./build
+java -classpath .classes:jars/junit-4.0.jar org.junit.runner.JUnitCore org.mhjones.nlp.tests.NaiveBayesClassifierTest
