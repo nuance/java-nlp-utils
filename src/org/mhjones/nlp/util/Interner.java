@@ -22,6 +22,10 @@ public class Interner<E> implements Serializable {
 	return canonicalMap.size();
     }
 
+    public Interner(Interner<E> other) {
+	this.canonicalMap = new HashMap<E,E>(other.canonicalMap);
+    }
+    
     public Interner() {
 	canonicalMap = new HashMap<E,E>();
     }

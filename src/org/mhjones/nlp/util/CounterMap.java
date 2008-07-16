@@ -176,4 +176,15 @@ public class CounterMap<E,F> implements Serializable {
 	this(64, 64);
     }
 
+    public CounterMap(CounterMap<E,F> other) {
+	this.primaryEncoding = new Encoding<E>(other.primaryEncoding);
+	this.secondaryEncoding = new Encoding<F>(other.secondaryEncoding);
+
+	this.values = DoubleArrays2D.copy(other.values);
+	this.secondaryIdx = IntegerArrays2D.copy(other.secondaryIdx);
+	this.secondaryRevIdx = (IdentityHashMap<Integer,Integer>[]) new Object[other.secondaryRevIdx.length];
+	for (int i = 0; i < other.secondaryRevIdx.length; i++)
+	    this.secondaryRevIdx[i] = new IdentityHashMap<Integer, Integer>(other.secondaryRevIdx[i]);
+    }
+
 }

@@ -20,6 +20,15 @@ public class IntegerArrays2D {
 	return newArray;
     }
 
+    public static int[][] copy(int[][] array) {
+	int[][] copy = new int[array.length][];
+	for (int i = 0; i < array.length; i++) {
+	    array[i] = new int[array[i].length];
+	    System.arraycopy(array[i], 0, copy[i], 0, array[i].length);
+	}
+	return copy;
+    }
+
     public static int[][] constantArray(int primarySize, int secondarySize, int defaultValue) {
 	int[][] ret = new int[primarySize][];
 	

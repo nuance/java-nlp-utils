@@ -1,6 +1,8 @@
 package org.mhjones.nlp.math;
 
 import java.util.Arrays;
+import java.util.Random;
+import org.mhjones.nlp.util.Pair;
 
 public class DoubleArrays {
     public static double sum(double[] x) {
@@ -45,6 +47,20 @@ public class DoubleArrays {
 	    x[i] += y[i];
     }
 
+    public static void inPlaceSubtract(double[] x, double[] y) {
+	if (x.length != y.length) throw new IllegalArgumentException();
+	
+	for (int i = 0; i < x.length; i++)
+	    x[i] -= y[i];
+    }
+
+    public static void inPlaceSubtract(double[] x, double[] y, int start, int length) {
+	if (x.length < length+start || y.length < length+start) throw new IllegalArgumentException();
+	
+	for (int i = start; i < length+start; i++)
+	    x[i] -= y[i];
+    }
+
     public static void inPlaceMultiply(double[] x, double[] y, int start, int length) {
 	if (x.length < length+start || y.length < length+start) throw new IllegalArgumentException();
 	
@@ -57,6 +73,15 @@ public class DoubleArrays {
 	
 	for (int i = start; i < length+start; i++)
 	    x[i] *= y;
+    }
+
+    public static double[] multiply(double[] x, double y) {
+	double[] ret = new double[x.length];
+
+	for (int i = 0; i < x.length; i++)
+	    ret[i] = x[i] * y;
+
+	return ret;
     }
 
     public static void inPlaceDivide(double[] x, double y) {
@@ -121,6 +146,18 @@ public class DoubleArrays {
 	double[] ret = new double[length];
 	
 	Arrays.fill(ret, defaultValue);
+
+	return ret;
+    }
+
+    // generates an array of doubles between 0 and max
+    public static double[] uniformRandomArray(int length, Pair<Double, Double> range) {
+	double[] ret = new double[length];
+	Random generator = new Random();
+	
+	for (int i = 0; i < length; i++) {
+	    ret[i] = (generator.nextDouble() + range.getFirst()) * (range.getSecond() - range.getFirst());
+	}
 
 	return ret;
     }

@@ -60,4 +60,10 @@ public class Encoding<E> implements Serializable {
 	this(128);
     }
 
+    public Encoding(Encoding<E> other) {
+	this.interner = new Interner<E>(other.interner);
+	this.encoder = new IdentityHashMap<E,Integer>(other.encoder);
+	this.decoder = (E[]) new Object[other.decoder.length];
+	System.arraycopy(this.decoder, 0, other.decoder, 0, other.decoder.length);
+    }
 }

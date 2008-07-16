@@ -20,6 +20,15 @@ public class DoubleArrays2D {
 	return newArray;
     }
 
+    public static double[][] copy(double[][] array) {
+	double[][] copy = new double[array.length][];
+	for (int i = 0; i < array.length; i++) {
+	    array[i] = new double[array[i].length];
+	    System.arraycopy(array[i], 0, copy[i], 0, array[i].length);
+	}
+	return copy;
+    }
+    
     public static double[][] constantArray(int primaryLength, int secondaryLength, double defaultValue) {
 	double[][] ret = new double[primaryLength][];
 	

@@ -5,13 +5,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.mhjones.nlp.math.DoubleArrays;
+import org.mhjones.nlp.math.Function;
+import org.mhjones.nlp.math.FunctionMinimizer;
 import org.mhjones.nlp.util.Counter;
 import org.mhjones.nlp.util.CounterMap;
 import org.mhjones.nlp.util.Encoding;
 import org.mhjones.nlp.util.FeatureExtractor;
+import org.mhjones.nlp.util.Pair;
 
 public class MaximumEntropyClassifier {
 
@@ -68,19 +73,58 @@ public class MaximumEntropyClassifier {
 	}
     }
 
+    private class MaxEntWeightFunction extends Function {
+
+	private CounterMap<Integer, String> featureDistribution;
+	
+	protected double calculateValue(double[] point) {
+	    return 0.0;
+	}
+
+	protected double[] calculateGradient(double[] point) {
+	    return new double[1];
+	}
+
+	protected Pair<Double, double[]> calculateValueAndGradient(double[] point) {
+	    return new Pair<Double, double[]>(calculateValue(point), calculateGradient(point));
+	}
+
+	public int dimension() {
+	    return 1;
+	}
+
+	public Pair<Double, Double> range() {
+	    return new Pair<Double, Double>(0.0, 1.0);
+	}
+	
+	public MaxEntWeightFunction(CounterMap<Integer, String> featureDistribution) {
+	    this.featureDistribution = featureDistribution;
+	}
+    }
+    
     CounterMap<Integer, String> featureDistribution;
+    CounterMap<Integer, String> featureCounts;
     double[] featureWeights;
     FeatureExtractor[] featureExtractors;
     Encoding<String> featureEncoder;
 
-    public void train(Map<String, String> labeledData) {
-	for (String datum : labeledData.keySet())
+    public void train(Pair<String, String>[] labeledData) {
+	System.out.println("*** Extracting features ***");
+	for (Pair<String, String> datum : labeledData)
 	    for (FeatureExtractor extractor: featureExtractors)
-		for (int feature : extractor.extractFeatures(datum))
-		    featureDistribution.incrementCount(feature, labeledData.get(datum));
+		for (int feature : extractor.extractFeatures(datum.getFirst()))
+		    featureCounts.incrementCount(feature, datum.getSecond());
 
+	System.out.println("*** Normalizing feature distribution ***");
+	featureDistribution = new CounterMap<Integer, String>(featureCounts);
 	featureDistribution.normalize();
-	featureWeights = new double[featureEncoder.size()];
+
+	// Create a minimizer and a function to minimize
+	MaxEntWeightFunction func = new MaxEntWeightFunction(featureDistribution);
+	FunctionMinimizer minimizer = new FunctionMinimizer(func, 10);
+
+	System.out.println("*** Optimizing feature weights ***");
+	featureWeights = minimizer.minimize();
     }
 
     public String label(String datum) {
@@ -132,22 +176,22 @@ public class MaximumEntropyClassifier {
 	featureExtractors[1] = new BiCharacterExtractor(featureEncoder);
     }
 
-    public static Map<String, String> readDelimitedData(String filename, String delimiter) throws IOException {
+    public static Pair<String, String>[] readDelimitedData(String filename, String delimiter) throws IOException {
 	FileReader fr = new FileReader(filename);
 	BufferedReader br = new BufferedReader(fr);
-	Map<String, String> pairs = new HashMap<String, String>();
+	ArrayList<Pair<String, String>> pairs = new ArrayList<Pair<String, String>>();
 
 	while (br.ready()) {
 	    String line = br.readLine();
 	    String[] split = line.split(delimiter);
 	    
-	    pairs.put(split[1], split[0]);
+	    pairs.add(new Pair<String,String>(split[1], split[0]));
 	}
 
 	br.close();
 	fr.close();
 
-	return pairs;
+	return (Pair<String, String>[]) pairs.toArray();
     }
 
     public static void main(String[] args) throws IOException {
@@ -157,21 +201,26 @@ public class MaximumEntropyClassifier {
 	MaximumEntropyClassifier classifier = new MaximumEntropyClassifier();
 
 	/** Read in training and test data **/
-	Map<String, String> labeledTrainingData = readDelimitedData("data/pnp-train.txt", "\t");
-	Map<String, String> labeledTestData = readDelimitedData("data/pnp-test.txt", "\t");
+	Pair<String, String>[] labeledTrainingData = readDelimitedData("data/pnp-train.txt", "\t");
+	Pair<String, String>[] labeledTestData = readDelimitedData("data/pnp-test.txt", "\t");
 
 	classifier.train(labeledTrainingData);
 
-	Map<String, String> guessedLabels = classifier.label(labeledTestData.keySet());
+	HashSet<String> testData = new HashSet<String>();
+	for (Pair<String, String> data : labeledTestData) {
+	    testData.add(data.getFirst());
+	}
+	
+	Map<String, String> guessedLabels = classifier.label(testData);
 	
 	int correct = 0;
-	for (String item : labeledTestData.keySet()) {
-	    if (verbose) classifier.debugLabeling(item);
-	    if (labeledTestData.get(item).equals(guessedLabels.get(item)))
+	for (Pair<String, String> datum : labeledTestData) {
+	    if (verbose) classifier.debugLabeling(datum.getFirst());
+	    if (datum.getSecond().equals(guessedLabels.get(datum.getFirst())))
 		correct++;
 	}
 
-	System.out.println("Correctly labeled " + correct + " of " + labeledTestData.size());
+	System.out.println("Correctly labeled " + correct + " of " + labeledTestData.length);
     }
 
 }
