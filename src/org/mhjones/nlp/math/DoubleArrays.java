@@ -72,6 +72,11 @@ public class DoubleArrays {
 	    x[i] = Math.log(x[i]);
     }
 
+    public static void inPlaceNormalize(double[] x) {
+	double total = sum(x);
+	inPlaceDivide(x, total);
+    }
+    
     public static double max(double[] x) {
 	double val = x[0];
 
@@ -111,6 +116,7 @@ public class DoubleArrays {
 
 	return arg;
     }
+
     public static double[] resizeArray(double[] array, int newLength) {
 	double[] newArray = new double[newLength];
 
